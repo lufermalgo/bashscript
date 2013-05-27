@@ -1,0 +1,21 @@
+Instrucciones para poner en producción el programa.
+===================================================
+
+Archivos:
+
+- Script de SysV para administrar el demonio (CheckWan)
+- Script CheckWan (se ejecuta en modo demonio)
+- Archivo de configuración para rotado de logs
+- Archivo de configuración del programa
+
+
+Por el momento no he raalizado un rpm que ponga los archivos en su sitio, así
+que debemos hacerlo manualmente.
+
+1. Poner el script CheckWan en el PATH
+
+    cp CheckWan /usr/sbin/
+
+cambie los permisos si son necesarios.
+
+2. 
