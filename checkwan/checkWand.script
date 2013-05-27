@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# checkWand	This shell script takes care of starting and stopping
+#
+# chkconfig: - 58 74
+# description: checkWand is the script to switch channel wan.
+
+# Source function library.
+. /etc/init.d/functions
+
+prog=checkWand
+lockfile=/var/lock/subsys/$prog
+
+start() {
+	[ "$EUID" != "0" ] && exit 4
+	[ "$NETWORKING" = "no" ] && exit 1
+	[ -x /usr/sbin/checkWand ] || exit 5
+	[ -f /etc/sysconfig/checkWand ] || exit 6
+	. /etc/sysconfig/checkWand
+
+     if [ ! -f $lockfile ] ; then
+        # Start daemons.
+        echo -n $"Starting $prog: "
+        daemon $prog $OPTIONS
+	RETVAL=$?
+        echo
+	[ $RETVAL -eq 0 ] && touch $lockfile
+	return $RETVAL
+     else
+        echo "the program $prog is running."
+	exit 4
+     fi
+}
+
+stop() {
+	[ "$EUID" != "0" ] && exit 4
+        echo -n $"Shutting down $prog: "
+	killproc $prog
+	RETVAL=$?
+        echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+	status $prog
+	;;
+  restart|force-reload)
+	stop
+	start
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart}"
+	exit 2
+esac

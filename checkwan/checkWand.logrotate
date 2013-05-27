@@ -1,0 +1,5 @@
+/var/log/checkWan/*.log {
+    daily
+    rotate 5
+    compress
+}
