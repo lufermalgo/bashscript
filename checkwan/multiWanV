@@ -16,9 +16,11 @@ start() {
 	[ "$EUID" != "0" ] && exit 4
 	[ "$NETWORKING" = "no" ] && exit 1
 	[ -x /usr/sbin/multiWand ] || exit 5
-	[ -f /etc/sysconfig/multiWand ] || exit 6
-	. /etc/sysconfig/multiWand
+	[ -f /etc/multiWand/multiWand.conf ] || exit 6
+	. /etc/multiWand/multiWand.conf
 
+    PARAM="add"
+    
      if [ ! -f $lockfile ] ; then
         # Start daemons.
         echo -n $"Starting $prog: "
@@ -46,7 +48,6 @@ stop() {
 # See how we were called.
 case "$1" in
   start)
-    PARAM="add"
 	start
 	;;
   stop)
