@@ -1,43 +1,31 @@
 #!/bin/sh
 #  
-#  checkWand.sh
+#  multiWan.sh
 #  
-#  Copyright (C) 2012 - Luis Fernando Maldonado Arango
-#  Copyright (C) 2012 - Summan S.A.S.
+#  Copyright (C) 2013 - Luis Fernando Maldonado Arango
+#  Copyright (C) 2013 - Summan S.A.S.
 #  
-#  checkWand is free software: you can redistribute it and/or modify
+#  multiWan is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
 #  (at your option) any later version.
 #  
-#  checkWand is distributed in the hope that it will be useful,
+#  multiWan is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 #  
 #  You should have received a copy of the GNU General Public License
-#  along with checkWand.  If not, see <http://www.gnu.org/licenses/>.
+#  along with multiWan.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 (
-. /etc/checkWand/checkWand.conf
+. /etc/multiWan/multiWan.conf
 
 SLEEPTIME=2
 TIMEOUT=1
 PATH_NETWORKS="/etc/sysconfig/network-scripts"            
 MAX_ERROR_COUNT=`echo "$TARGETHOSTS" | wc -w`
-
-# redirect tty fds to /dev/null
-function redirectStd() {
-    [[ -t 0 ]] && exec </dev/null
-    [[ -t 1 ]] && exec >/dev/null
-    [[ -t 2 ]] && exec 2>/dev/null
-}
- 
-# close all non-std* fds
-function closeFds() {
-    eval exec {3..255}\>\&-
-}
 
 function CheckConnection1() {
     ERROR_COUNT=0
@@ -170,15 +158,9 @@ ONPARENT="no"" > "$PATH_NETWORKS/ifcfg-$INTERFACE:1"
     fi
 }
 
-                # 1. fork
-redirectStd     # 2.2.1. redirect stdin/stdout/stderr
-trap '' 1 2     # 2.2.2. guard against HUP and INT (in child)
-cd /            # 3. ensure cwd isn't a mounted fs
-# umask 0       # 4. umask (leave this to caller)
-closeFds        # 5. close unneeded fds
 
 (
-LOCK_FILE="/var/lock/checkWand"
+LOCK_FILE="/var/lock/multiWan"
 ULIMIT_N=`ulimit -n`
 let "FLOCK_FD = ULIMIT_N - 1"
 
@@ -225,10 +207,10 @@ Date: $DATE
       fi
     fi
 done
-) >> /var/log/checkWand/checkWand_1.log &
+) >> /var/log/multiWan/multiWan_1.log &
 
 (
-LOCK_FILE="/var/lock/checkWand"
+LOCK_FILE="/var/lock/multiWan"
 ULIMIT_N=`ulimit -n`
 let "FLOCK_FD = ULIMIT_N - 1"
 
@@ -260,6 +242,6 @@ Date: $DATE
     fi
     sleep $SLEEPTIME
 done
-) >> /var/log/checkWand/checkWand_2.log
+) >> /var/log/multiWan/multiWan_2.log
 ) &
 disown -h $!
