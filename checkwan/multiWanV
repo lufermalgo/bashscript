@@ -15,14 +15,13 @@ start() {
 	[ "$EUID" != "0" ] && exit 4
 	[ "$NETWORKING" = "no" ] && exit 1
 	[ -x /usr/sbin/multiWand ] || exit 5
-	[ -f /etc/multiWand/multiWand.conf ] || exit 6
-	. /etc/multiWand/multiWand.conf
-
-    PARAM="add"
+	[ -f /etc/multiWan/multiWand.conf ] || exit 6
+	. /etc/multiWan/multiWand.conf
     
      if [ ! -f $lockfile ] ; then
         # Start daemons.
         echo -n $"Starting $prog: "
+        PARAM="del"
         daemon $prog $OPTIONS
 	RETVAL=$?
         echo
@@ -35,9 +34,9 @@ start() {
 }
 
 stop() {
-    PARAM="del"
 	[ "$EUID" != "0" ] && exit 4
         echo -n $"Shutting down $prog: "
+        PARAM="del"
 	killproc $prog
 	RETVAL=$?
         echo
