@@ -41,7 +41,7 @@ function getvalue() {
         done
 }
 
-function addTableRoute() {
+function setTableRoute() {
 routecmd="ip route replace default scope global"
 
 i=1
@@ -61,9 +61,9 @@ for iface in $WANIFACE  ; do
 		echo
 	fi
 	set -x
-	ip route add ${NET} dev ${iface} src ${IP} table ${i}
-	ip route add default via ${GW} table ${i}
-	ip rule add from ${IP} table ${i}
+	ip route ${PARAM ${NET} dev ${iface} src ${IP} table ${i}
+	ip route ${PARAM default via ${GW} table ${i}
+	ip rule ${PARAM from ${IP} table ${i}
 	set +x
 	echo
 	routecmd="${routecmd} nexthop via ${GW} dev ${iface} weight ${WT}"
@@ -71,35 +71,6 @@ for iface in $WANIFACE  ; do
 done
 }
 
-function delTableRoute() {
-routecmd="ip route replace default scope global"
-
-i=1
-for iface in $WANIFACE  ; do
-
-	IP=`ifconfig $iface |grep "inet " | awk '{print $2}'`
-	NET=$(getvalue $i "$NETWORKS")
-	GW=$(getvalue $i "$GATEWAYS")
-	WT=$(getvalue $i "$WEIGHTS")
-
-	echo "[] Interface: ${iface}"
-	if [ $VERBOSE -eq 1 ]; then
-		echo "	IP: ${IP}"
-		echo "	NET: ${NET}"
-		echo "	GW: ${GW}"
-		echo "	Weight: ${WT}"
-		echo
-	fi
-	set -x
-	ip route del ${NET} dev ${iface} src ${IP} table ${i}
-	ip route del default via ${GW} table ${i}
-	ip rule del from ${IP} table ${i}
-	set +x
-	echo
-	routecmd="${routecmd} nexthop via ${GW} dev ${iface} weight ${WT}"
-	i=$(($i + 1))
-done
-}
 
 function CheckLinkWan() {
     ERROR_COUNT=0
