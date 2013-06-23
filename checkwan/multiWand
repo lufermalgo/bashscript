@@ -1,26 +1,26 @@
 #!/bin/sh
 #  
-#  multiWan.sh
+#  multiWand
 #  
 #  Copyright (C) 2013 - Luis Fernando Maldonado Arango
 #  Copyright (C) 2013 - Summan S.A.S.
 #  
-#  multiWan is free software: you can redistribute it and/or modify
+#  multiWand is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
 #  (at your option) any later version.
 #  
-#  multiWan is distributed in the hope that it will be useful,
+#  multiWand is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 #  
 #  You should have received a copy of the GNU General Public License
-#  along with multiWan.  If not, see <http://www.gnu.org/licenses/>.
+#  along with multiWand.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 (
-. /etc/multiWan/multiWan.conf
+. /etc/multiWand/multiWand.conf
 
 SLEEPTIME=2
 TIMEOUT=1
@@ -214,7 +214,7 @@ ONPARENT="no"" > "$PATH_NETWORKS/ifcfg-$INTERFACE:1"
 
 
 (
-LOCK_FILE="/var/lock/multiWan"
+LOCK_FILE="/var/lock/multiWand"
 ULIMIT_N=`ulimit -n`
 let "FLOCK_FD = ULIMIT_N - 1"
 
@@ -261,10 +261,10 @@ Date: $DATE
       fi
     fi
 done
-) >> /var/log/multiWan/multiWan_1.log &
+) >> /var/log/multiWand/multiWand_1.log &
 
 (
-LOCK_FILE="/var/lock/multiWan"
+LOCK_FILE="/var/lock/multiWand"
 ULIMIT_N=`ulimit -n`
 let "FLOCK_FD = ULIMIT_N - 1"
 
@@ -296,6 +296,6 @@ Date: $DATE
     fi
     sleep $SLEEPTIME
 done
-) >> /var/log/multiWan/multiWan_2.log
+) >> /var/log/multiWand/multiWand_2.log
 ) &
 disown -h $!
