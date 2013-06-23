@@ -20,7 +20,7 @@
 #
 
 (
-. /etc/multiWand/multiWand.conf
+. /etc/multiWan/multiWand.conf
 
 SLEEPTIME=2
 TIMEOUT=1
