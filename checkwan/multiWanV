@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# multiWand	This shell script takes care of starting and stopping
+# multiWanV	This shell script takes care of starting and stopping
 #
 # chkconfig: - 58 74
 # description: multiWand is the script to switch channel wan.
