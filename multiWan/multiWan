@@ -1,0 +1,140 @@
+#!/bin/bash
+#
+# multiWan-SysV This shell script takes care of starting and stopping
+#
+# chkconfig: - 58 74
+# description: multiWand is the script to switch channel wan.
+
+# Source function library.
+. /etc/init.d/functions
+. /etc/multiWan/multiWan.conf
+
+prog=multiWand
+lockfile=/var/lock/subsys/$prog
+
+getvalue() {
+        index=$1
+        VAR=$2
+
+        n=1
+        for f in ${VAR} ; do
+                if [ "${n}" == "${index}" ]; then
+                        echo "$f"
+                        break
+                fi
+                n=$(($n + 1))
+        done
+}
+
+start() {
+	[ "$EUID" != "0" ] && exit 4
+	[ "$NETWORKING" = "no" ] && exit 1
+	[ -x /usr/sbin/multiWand ] || exit 5
+	[ -f /etc/multiWan/multiWan.conf ] || exit 6
+
+	routecmd="ip route replace default scope global"
+	i=1
+	for iface in $WANIFACE  ; do
+
+		IP=`ifconfig $iface |grep "inet addr" |cut -f 2 -d ":" |awk '{print $1}'`
+		NET=$(getvalue $i "$NETWORKS")
+		GW=$(getvalue $i "$GATEWAYS")
+		WT=$(getvalue $i "$WEIGHTS")
+
+			echo "[] Interface: ${iface}"
+		if [ $VERBOSE -eq 1 ]; then
+			echo "	IP: ${IP}"
+			echo "	NET: ${NET}"
+			echo "	GW: ${GW}"
+			echo "	Weight: ${WT}"
+			echo
+		fi
+		set -x
+		ip route add ${NET} dev ${iface} src ${IP} table ${i}
+		ip route add default via ${GW} table ${i}
+		ip rule add from ${IP} table ${i}
+		set +x
+		echo
+		routecmd="${routecmd} nexthop via ${GW} dev ${iface} weight ${WT}"
+		i=$(($i + 1))
+	done   
+set -x
+${routecmd}
+set +x
+	     if [ ! -f $lockfile ] ; then
+		# Start daemons.
+		echo -n $"Starting $prog: "
+		daemon $prog $OPTIONS
+		RETVAL=$?
+		echo
+		[ $RETVAL -eq 0 ] && touch $lockfile
+		return $RETVAL
+	     else
+		echo "the program $prog is running."
+		exit 4
+	     fi
+}
+
+stop() {
+	[ "$EUID" != "0" ] && exit 4
+
+	routecmd="ip route replace default scope global"
+
+	i=1
+	for iface in $WANIFACE  ; do
+
+		IP=`ifconfig $iface |grep "inet addr" |cut -f 2 -d ":" |awk '{print $1}'`
+		NET=$(getvalue $i "$NETWORKS")
+		GW=$(getvalue $i "$GATEWAYS")
+		WT=$(getvalue $i "$WEIGHTS")
+
+		echo "[] Interface: ${iface}"
+		if [ $VERBOSE -eq 1 ]; then
+			echo "	IP: ${IP}"
+			echo "	NET: ${NET}"
+			echo "	GW: ${GW}"
+			echo "	Weight: ${WT}"
+			echo
+		fi
+		set -x
+		ip route del ${NET} dev ${iface} src ${IP} table ${i}
+		ip route del default via ${GW} table ${i}
+		ip rule del from ${IP} table ${i}
+		set +x
+
+		echo
+		routecmd="${routecmd} nexthop via ${GW} dev ${iface} weight ${WT}"
+		i=$(($i + 1))
+	done
+
+set -x
+${routecmd}
+set +x
+
+        echo -n $"Shutting down $prog: "
+	killproc $prog
+	RETVAL=$?
+        echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+	status $prog
+	;;
+  restart|force-reload)
+	stop
+	start
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart}"
+	exit 2
+esac
